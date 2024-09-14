@@ -1,48 +1,49 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { shallow } from 'enzyme';
 import Notifications from './Notifications';
 import { getLatestNotification } from './utils';
 
 describe('Notifications Component', () => {
+  let wrapper;
+
   beforeEach(() => {
-    render(<Notifications />);
+    wrapper = shallow(<Notifications />);
   });
 
-  test('renders without crashing', () => {
-    // Already handled by render function
+  it('renders without crashing', () => {
+    expect(wrapper.exists()).toBe(true);
   });
 
-  test('renders three list items', () => {
-    const listItems = screen.getAllByRole('listitem');
+  it('renders three list items', () => {
+    const listItems = wrapper.find('ul li');
     expect(listItems.length).toBe(3);
-    expect(listItems[0]).toHaveTextContent('New course available');
-    expect(listItems[1]).toHaveTextContent('New resume available');
+    expect(listItems.at(0).text()).toBe('New course available');
+    expect(listItems.at(1).text()).toBe('New resume available');
   });
 
-  test('renders the text "Here is the list of notifications"', () => {
-    const paragraph = screen.getByText('Here is the list of notifications');
-    expect(paragraph).toBeInTheDocument();
+  it('renders the text "Here is the list of notifications"', () => {
+    const paragraph = wrapper.find('p');
+    expect(paragraph.text()).toEqual('Here is the list of notifications');
   });
 
-  test('renders the close button with the correct alt text', () => {
-    const button = screen.getByRole('button', { name: /Close/i });
-    const img = screen.getByAltText('Close');
-    expect(button).toBeInTheDocument();
-    expect(img).toBeInTheDocument();
+  it('renders the close button with the correct alt text', () => {
+    const button = wrapper.find('button');
+    const img = wrapper.find('img');
+    expect(button.prop('aria-label')).toEqual('Close');
+    expect(img.prop('alt')).toEqual('Close');
   });
 
-  test('clicking the close button logs the correct message', () => {
+  it('clicking the close button logs the correct message', () => {
     const consoleSpy = jest.spyOn(console, 'log');
-    const button = screen.getByRole('button', { name: /Close/i });
-    fireEvent.click(button);
+    const button = wrapper.find('button');
+    button.simulate('click');
     expect(consoleSpy).toHaveBeenCalledWith('Close button has been clicked');
     consoleSpy.mockRestore();
   });
 
-  test('correctly renders the latest notification content', () => {
+  it('correctly renders the latest notification content', () => {
     const latestNotification = getLatestNotification();
-    const lastItem = screen.getAllByRole('listitem')[2];
-    expect(lastItem).toHaveAttribute('dangerouslySetInnerHTML');
-    expect(lastItem.innerHTML).toContain(latestNotification.__html);
+    const lastItem = wrapper.find('ul li').at(2);
+    expect(lastItem.prop('dangerouslySetInnerHTML')).toEqual(latestNotification);
   });
 });

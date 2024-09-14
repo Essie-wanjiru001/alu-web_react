@@ -1,48 +1,50 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { shallow } from 'enzyme';
 import App from './App';
 import { getFullYear, getFooterCopy } from './utils';
 
 describe('App Component', () => {
-  test('renders without crashing', () => {
-    render(<App />);
+  it('renders without crashing', () => {
+    const wrapper = shallow(<App />);
+    expect(wrapper.exists()).toBe(true);
   });
 
-  test('renders a div with the class App-header', () => {
-    render(<App />);
-    const headerDiv = screen.getByRole('banner');
-    expect(headerDiv).toBeInTheDocument();
+  it('renders a div with the class App-header', () => {
+    const wrapper = shallow(<App />);
+    const headerDiv = wrapper.find('.App-header');
+    expect(headerDiv.exists()).toBe(true);
 
-    const logo = screen.getByAltText('Holberton Logo: Red Seahorse');
-    const heading = screen.getByText('School dashboard');
-    expect(logo).toBeInTheDocument();
-    expect(heading).toBeInTheDocument();
+    const logo = headerDiv.find('img');
+    const heading = headerDiv.find('h1');
+    expect(logo.exists()).toBe(true);
+    expect(heading.text()).toEqual('School dashboard');
   });
 
-  test('renders a div with the class App-body containing email and password inputs', () => {
-    render(<App />);
-    const bodyDiv = screen.getByRole('main');
-    expect(bodyDiv).toBeInTheDocument();
+  it('renders a div with the class App-body containing email and password inputs', () => {
+    const wrapper = shallow(<App />);
+    const bodyDiv = wrapper.find('.App-body');
+    expect(bodyDiv.exists()).toBe(true);
 
-    const emailInput = screen.getByLabelText('Email:');
-    const passwordInput = screen.getByLabelText('Password:');
-    expect(emailInput).toHaveAttribute('type', 'email');
-    expect(passwordInput).toHaveAttribute('type', 'password');
+    const emailInput = bodyDiv.find('input#email');
+    const passwordInput = bodyDiv.find('input#pwd');
+    expect(emailInput.prop('type')).toBe('email');
+    expect(passwordInput.prop('type')).toBe('password');
   });
 
-  test('renders a button with the text OK', () => {
-    render(<App />);
-    const button = screen.getByText('OK');
-    expect(button).toBeInTheDocument();
+  it('renders a button with the text OK', () => {
+    const wrapper = shallow(<App />);
+    const button = wrapper.find('button');
+    expect(button.text()).toBe('OK');
   });
 
-  test('renders a div with the class App-footer', () => {
-    render(<App />);
-    const footerDiv = screen.getByRole('contentinfo');
-    expect(footerDiv).toBeInTheDocument();
+  it('renders a div with the class App-footer', () => {
+    const wrapper = shallow(<App />);
+    const footerDiv = wrapper.find('.App-footer');
+    expect(footerDiv.exists()).toBe(true);
 
     const currentYear = getFullYear();
-    const footerText = screen.getByText(`Copyright ${currentYear} - ${getFooterCopy(true)}`);
-    expect(footerText).toBeInTheDocument();
+    const footerText = footerDiv.find('p').text();
+    expect(footerText).toContain(`Copyright ${currentYear}`);
+    expect(footerText).toContain(getFooterCopy(true));
   });
 });
